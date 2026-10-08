@@ -19,7 +19,7 @@ jobs:
         env:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           VAPI_KEY: ${{ secrets.VAPI_KEY }}
           VAPI_ASSISTANT_ID: ${{ secrets.VAPI_ASSISTANT_ID }}
           VAPI_PHONE_ID: ${{ secrets.VAPI_PHONE_ID }}

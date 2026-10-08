@@ -12,17 +12,21 @@ DEMO_PHONE = os.getenv("DEMO_PHONE")   # redirects every call to you
 
 def write_email(r):
     base = email_body(r)
-    if not os.getenv("ANTHROPIC_API_KEY"):
+    key = os.getenv("GEMINI_API_KEY")
+    if not key:
         return base
-    import anthropic
-    c = anthropic.Anthropic()
-    msg = c.messages.create(
-        model="claude-sonnet-5-5", max_tokens=500,
-        messages=[{"role": "user", "content":
-                   "You are the academic office of a college. Rewrite this as a warm, supportive, "
-                   "concise email. Keep every number exactly as given. Do not invent facts. "
-                   "Output the email body only.\n\n" + base}])
-    return msg.content[0].text
+    try:
+        from google import genai
+        client = genai.Client(api_key=key)
+        resp = client.models.generate_content(
+            model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
+            contents=("You are the academic office of a college. Rewrite this as a warm, supportive, "
+                      "concise email. Keep every number exactly as given. Do not invent facts. "
+                      "Output the email body only.\n\n" + base))
+        return resp.text or base
+    except Exception as e:
+        print(f"[Gemini failed, using template] {e}")
+        return base
 
 
 def main():
