@@ -1,0 +1,32 @@
+name: attendance-agent
+on:
+  schedule:
+    - cron: "0 3 * * *"          # daily 08:30 IST
+  push:
+    paths: ["data/attendance.csv", "data/marks.csv"]   # runs when faculty upload new data
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install -r requirements.txt
+      - run: python agent.py
+        env:
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          VAPI_KEY: ${{ secrets.VAPI_KEY }}
+          VAPI_ASSISTANT_ID: ${{ secrets.VAPI_ASSISTANT_ID }}
+          VAPI_PHONE_ID: ${{ secrets.VAPI_PHONE_ID }}
+          DEMO_EMAIL: ${{ secrets.DEMO_EMAIL }}
+          DEMO_PHONE: ${{ secrets.DEMO_PHONE }}
+      - run: |
+          git config user.name "attendance-agent"
+          git config user.email "agent@users.noreply.github.com"
+          git add data/notified.csv
+          git diff --cached --quiet || (git commit -m "agent: update notified state" && git push)
